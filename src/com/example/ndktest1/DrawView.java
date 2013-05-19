@@ -24,6 +24,7 @@ public class DrawView extends View implements OnTouchListener {
     Paint paint2 = new Paint();
 	private static Bitmap bmp;
 	private static Bitmap bmpG;
+	private static boolean showRes = false;
 	boolean osAvailable = false;
 	static int lastID = 0;
 			
@@ -64,6 +65,11 @@ public class DrawView extends View implements OnTouchListener {
     
     @Override
     public void onDraw(Canvas canvas) {
+    	if(showRes)
+    	{
+    		bmpG.eraseColor(Color.WHITE);
+    		lastID = 0;
+    	}
    // 	canvas.drawBitmap(bmpG, 0, 0, paint);
   //      for (int i=0;i<points.size()-1;i++) {
      //   	canvas.drawLine(points.get(i).x, points.get(i).y, points.get(i+1).x, points.get(i+1).y, paint);
@@ -72,7 +78,7 @@ public class DrawView extends View implements OnTouchListener {
         if(osAvailable)
         {
         	List<Point> pp = seg.getPoints();
-        	Log.w("Segment","G");
+        	//Log.w("Segment","G");
         	Point p;
         	for(int i=lastID;i<pp.size();i++){
         		p=pp.get(i);
@@ -111,5 +117,9 @@ public class DrawView extends View implements OnTouchListener {
     }
     public void setSegmenter(Segmenter _seg){
     	seg = _seg;
+    }
+    public void showResult(){
+    	showRes = true;
+    	invalidate();
     }
 }

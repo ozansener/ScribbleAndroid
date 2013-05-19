@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Process;
 import android.provider.MediaStore.Images.Media;
 import android.app.Activity;
 import android.content.Intent;
@@ -23,7 +24,7 @@ public class MainActivity extends Activity {
 	
 	
 	private static Bitmap bmp;
-
+	private static boolean firstCall=true;
 	DrawView dw;
 	Segmenter seg;
 	int[] segmentIDs = new int[960*540+1];
@@ -36,12 +37,7 @@ public class MainActivity extends Activity {
                                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_main);
-		seg = new Segmenter();
 		//ImageView iv = (ImageView) findViewById(R.id.iv);
-	}
-	protected void onDestroy() {
-		super.onDestroy();
-		seg.stp();
 	}
 
 	@Override
@@ -51,8 +47,8 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	public void testt(View vw){
-		EditText e = (EditText) findViewById(R.id.edit_message);
-		e.setText("A");
+//		EditText e = (EditText) findViewById(R.id.edit_message);
+	//	e.setText("A");
 		//DrawView dw = (DrawView)findViewById(R.id.drawView1);
 		//dw.points.clear();
 	}
@@ -85,14 +81,21 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item){
 		switch(item.getItemId()){
 		case	R.id.menu_segment:
+			dw.showResult();
 			return true;
 		case	R.id.menu_settings:
 			return true;
 		case	R.id.menu_clear:
+			Process.killProcess(Process.myPid());
 			dw.points.clear();
 			setContentView(R.layout.activity_main);
 			return true;
 		case	R.id.menu_os:
+			if(!firstCall)
+				if(seg!=null)
+					seg.stp();
+			firstCall = false;
+			seg = new Segmenter();
 			seg.setBMP(bmp);
 			seg.overSegment();
 			seg.getIDs(segmentIDs);

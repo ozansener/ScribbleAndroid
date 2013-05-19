@@ -16,7 +16,7 @@ int numlabels;
 RegionNode* regionNode;
 unsigned int* ubuff;
 int b;
-GrabCut gCut;
+GrabCut* gCut;
 static int lastFG=0;
 
 extern "C" {
@@ -25,8 +25,11 @@ static void createGraphStructure(int width,int height,jint* _psValues);
 
 void Java_com_example_ndktest1_Segmenter_releaseCMem(JNIEnv* env,jobject thiz){
 	b=0;
-	gCut.delSegs();
-	delete [] regionNode;
+	if(gCut)
+		delete gCut;
+	if(regionNode)
+		delete [] regionNode;
+	if(ubuff)
 	delete [] ubuff;
 }
 
@@ -105,12 +108,13 @@ JNIEXPORT void JNICALL Java_com_example_ndktest1_Segmenter_overSegmentNative(JNI
 	slic.DoSuperpixelSegmentation_ForGivenK(ubuff, 960, 540, segmentID, numlabels, m_spcount, m_compactness);
 	//Create graph structure
 	createGraphStructure(960,540,_psValues);
-    gCut.setSegmentNumber(numlabels);
-    gCut.setImage(ubuff);
-    gCut.setRegionNode(&regionNode);
-    gCut.setSegmentID(segmentID);
-    gCut.width = 960;
-    gCut.height = 540;
+	gCut = new GrabCut();
+    gCut->setSegmentNumber(numlabels);
+    gCut->setImage(ubuff);
+    gCut->setRegionNode(&regionNode);
+    gCut->setSegmentID(segmentID);
+    gCut->width = 960;
+    gCut->height = 540;
 
 	for(int i=0;i<960*540;i++)
 		_jsegmentID[i]=segmentID[i];

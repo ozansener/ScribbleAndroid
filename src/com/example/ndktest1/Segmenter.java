@@ -16,6 +16,7 @@ public class Segmenter {
 	private Lock l=new ReentrantLock();
 	private Condition cond=l.newCondition();
 	private boolean sFlag=false;
+	private boolean flagBu = true;
 	int lastID;
 	List<Integer> interactedSegments;
 	List<Integer> fgSegs;
@@ -50,7 +51,7 @@ public class Segmenter {
 		  new Thread(new Runnable() {
 			    public void run() {
 					int[] fgVals;
-			    	while(true){
+			    	while(flagBu){
 			    		if(lastID==interactedSegments.size())
 							try {
 								Thread.sleep(100);
@@ -64,7 +65,7 @@ public class Segmenter {
 			    			for(int i=0;i<interactedSegments.size();i++)
 			    				segArray[i]=interactedSegments.get(i);
 			    			fgVals = SegmentNative(segArray,segArray.length);
-			    			Log.w("Segment",String.format("S:%d", fgVals.length));
+			    			//Log.w("Segment",String.format("S:%d", fgVals.length));
 			    			/*
 			    			 * Do the segmentation
 			    			 * */
@@ -141,6 +142,7 @@ public class Segmenter {
   			segmentArray[i].center.x = segmentArray[i].center.x / segmentArray[i].allPixels.size(); 
   			segmentArray[i].center.y = segmentArray[i].center.y / segmentArray[i].allPixels.size();
   		}
+  		flagBu = true;
    		Segment();
 	}
 	public void getIDs(int[] segIDs){
@@ -148,7 +150,21 @@ public class Segmenter {
 	}
 	
 	public void stp() {
+		flagBu = false;
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		releaseCMem();
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 }

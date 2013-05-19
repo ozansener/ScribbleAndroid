@@ -13,18 +13,17 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:onClick="testt"
-	        android:text="NDK Test" />
+	        android:text="NDK Debug" />
 	    <Button
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:onClick="loadIm"
 	        android:text="LoadImage" />
 	</LinearLayout>
-    <EditText
-        android:id="@+id/edit_message"
+
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Yok" />
-
-
+        android:text="Error-tolerant Interactive Image Segmentation using Dynamic and Iterated Graph-Cuts" />
 </LinearLayout>    

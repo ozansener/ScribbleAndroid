@@ -468,17 +468,30 @@ void GrabCut::runResidualGrabCutNoBG(){
 
 void GrabCut::delSegs(){
 	reset();
-    delete [] bgVec;
-    delete gr;
-    delete [] curGMM->EnergyBG;
-    delete [] curGMM->EnergyFG;
-    delete [] oldGMM->EnergyFG;
-    delete [] oldGMM->EnergyBG;
-    delete [] oldGMM->RegionNumPcsdPixel;
-    delete [] curGMM->RegionNumPcsdPixel;
-    delete [] oldIDs;
-    delete curGMM;
-    delete oldGMM;
+}
+
+GrabCut::~Grabcut(){
+	reset();
+	if(bgVec)
+		delete [] bgVec;
+	if(gr)
+		delete gr;
+	if(curGMM->EnergyBG)
+		delete [] curGMM->EnergyBG;
+	if(curGMM->EnergyFG)
+		delete [] curGMM->EnergyFG;
+	if(oldGMM->EnergyFG)
+		delete [] oldGMM->EnergyFG;
+	if(oldGMM->EnergyBG)
+		delete [] oldGMM->EnergyBG;
+	if(oldGMM->RegionNumPcsdPixel)
+		delete [] oldGMM->RegionNumPcsdPixel;
+	if(curGMM->RegionNumPcsdPixel)
+		delete [] curGMM->RegionNumPcsdPixel;
+	if(oldIDs)
+		delete [] oldIDs;
+	delete curGMM;
+	delete oldGMM;
 }
 
 

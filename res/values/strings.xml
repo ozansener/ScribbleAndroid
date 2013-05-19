@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">ndkTest1</string>
+    <string name="app_name">Interactive Segmentation</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="menu_segment">Segment</string>
-    <string name="menu_clear">Clear</string>    
+    <string name="menu_segment">Show Segmentation</string>
+    <string name="menu_clear">Exit</string>    
     <string name="menu_os">Over Segment</string>    
 </resources>
