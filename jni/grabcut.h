@@ -53,6 +53,7 @@ public:
     int width;
     int height;
     GrabCut();
+//    ~GrabCut();
     void delSegs();
     void setSegmentID(int *s);
     void setImage(unsigned int* inpBuf);

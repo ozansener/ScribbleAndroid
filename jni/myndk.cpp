@@ -23,7 +23,7 @@ extern "C" {
 
 static void createGraphStructure(int width,int height,jint* _psValues);
 
-void Java_com_example_ndktest1_Segmenter_releaseCMem(JNIEnv* env,jobject thiz){
+void Java_com_example_ndktest13D_Segmenter_releaseCMem(JNIEnv* env,jobject thiz){
 	b=0;
 	if(gCut)
 		delete gCut;
@@ -33,26 +33,26 @@ void Java_com_example_ndktest1_Segmenter_releaseCMem(JNIEnv* env,jobject thiz){
 	delete [] ubuff;
 }
 
-void Java_com_example_ndktest1_MainActivity_Init(JNIEnv* env,jobject thiz){
+void Java_com_example_ndktest13D_MainActivity_Init(JNIEnv* env,jobject thiz){
 	b=0;
 }
 
-jstring Java_com_example_ndktest1_MainActivity_NativeF(JNIEnv* env, jobject javaThis) {
+jstring Java_com_example_ndktest13D_MainActivity_NativeF(JNIEnv* env, jobject javaThis) {
 		char testStr[1024];
 		static int a=0;
 		sprintf(testStr,"Val= %d %d",a++,b++);
       	return env->NewStringUTF(testStr);
 	}
-JNIEXPORT jintArray JNICALL Java_com_example_ndktest1_Segmenter_SegmentNative(JNIEnv* env, jobject thiz,jintArray jintIDs,jint sizee){
+JNIEXPORT jintArray JNICALL Java_com_example_ndktest13D_Segmenter_SegmentNative(JNIEnv* env, jobject thiz,jintArray jintIDs,jint sizee){
 	vector<int> aa;
     	jint*  _jinteract = env->GetIntArrayElements(jintIDs, 0);
 	jintArray result ;
 	for(int i=lastFG;i<sizee;i++){
-		gCut.add2FG(_jinteract[i]);
+		gCut->add2FG(_jinteract[i]);
 	//	aa.push_back(_jinteract[i]);
 	}
 	lastFG = sizee;
-	gCut.runResidualGrabCutNoBG();
+	gCut->runResidualGrabCutNoBG();
 	for(int i=0;i<numlabels;i++)
 		if(regionNode[i].groupID==1)
 			aa.push_back(i);
@@ -77,7 +77,7 @@ JNIEXPORT jintArray JNICALL Java_com_example_ndktest1_Segmenter_SegmentNative(JN
 }
 
 
-JNIEXPORT void JNICALL Java_com_example_ndktest1_Segmenter_overSegmentNative(JNIEnv* env, jobject thiz,jintArray jsegmentID,jintArray psValues)
+JNIEXPORT void JNICALL Java_com_example_ndktest13D_Segmenter_overSegmentNative(JNIEnv* env, jobject thiz,jintArray jsegmentID,jintArray psValues)
 {
     	jint*  _jsegmentID = env->GetIntArrayElements(jsegmentID, 0);
     	jint*  _psValues = env->GetIntArrayElements(psValues, 0);

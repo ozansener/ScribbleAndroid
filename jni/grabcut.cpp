@@ -469,7 +469,7 @@ void GrabCut::runResidualGrabCutNoBG(){
 void GrabCut::delSegs(){
 	reset();
 }
-
+/*
 GrabCut::~Grabcut(){
 	reset();
 	if(bgVec)
@@ -492,6 +492,6 @@ GrabCut::~Grabcut(){
 		delete [] oldIDs;
 	delete curGMM;
 	delete oldGMM;
-}
+}*/
 
 

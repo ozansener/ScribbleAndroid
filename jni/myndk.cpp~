@@ -8,38 +8,54 @@
 #include<stdio.h>
 #include<iostream>
 #include <vector>
-
+#include "grabcut.h"
 using namespace std;
-//using namespace cv;
 static bool firstCall = true;
 int* segmentID;
 int numlabels;
 RegionNode* regionNode;
 unsigned int* ubuff;
 int b;
+GrabCut* gCut;
+static int lastFG=0;
 
 extern "C" {
 
 static void createGraphStructure(int width,int height,jint* _psValues);
 
-void Java_com_example_ndktest1_MainActivity_Init(JNIEnv* env,jobject thiz){
+void Java_com_example_ndktest13D_Segmenter_releaseCMem(JNIEnv* env,jobject thiz){
+	b=0;
+	if(gCut)
+		delete gCut;
+	if(regionNode)
+		delete [] regionNode;
+	if(ubuff)
+	delete [] ubuff;
+}
+
+void Java_com_example_ndktest13D_MainActivity_Init(JNIEnv* env,jobject thiz){
 	b=0;
 }
 
-jstring Java_com_example_ndktest1_MainActivity_NativeF(JNIEnv* env, jobject javaThis) {
+jstring Java_com_example_ndktest13D_MainActivity_NativeF(JNIEnv* env, jobject javaThis) {
 		char testStr[1024];
 		static int a=0;
 		sprintf(testStr,"Val= %d %d",a++,b++);
       	return env->NewStringUTF(testStr);
 	}
-JNIEXPORT jintArray JNICALL Java_com_example_ndktest1_Segmenter_SegmentNative(JNIEnv* env, jobject thiz,jintArray jintIDs,jint sizee){
+JNIEXPORT jintArray JNICALL Java_com_example_ndktest13D_Segmenter_SegmentNative(JNIEnv* env, jobject thiz,jintArray jintIDs,jint sizee){
 	vector<int> aa;
     	jint*  _jinteract = env->GetIntArrayElements(jintIDs, 0);
 	jintArray result ;
-	for(int i=0;i<sizee;i++)
-		for(int j=0;j<regionNode[_jinteract[i]].neighborNum;j++)
-			aa.push_back(regionNode[_jinteract[i]].neighborID[j]);
-
+	for(int i=lastFG;i<sizee;i++){
+		gCut.add2FG(_jinteract[i]);
+	//	aa.push_back(_jinteract[i]);
+	}
+	lastFG = sizee;
+	gCut->runResidualGrabCutNoBG();
+	for(int i=0;i<numlabels;i++)
+		if(regionNode[i].groupID==1)
+			aa.push_back(i);
 	/*
 	*	Real Segmentation Part
 	*	Is Here
@@ -55,12 +71,13 @@ JNIEXPORT jintArray JNICALL Java_com_example_ndktest1_Segmenter_SegmentNative(JN
 	     fill[i] = aa[i]; 
 	 }
 	 env->SetIntArrayRegion(result, 0, aa.size(), fill);
+	 delete [] fill;
 	 return result;
     	
 }
 
 
-JNIEXPORT void JNICALL Java_com_example_ndktest1_Segmenter_overSegmentNative(JNIEnv* env, jobject thiz,jintArray jsegmentID,jintArray psValues)
+JNIEXPORT void JNICALL Java_com_example_ndktest13D_Segmenter_overSegmentNative(JNIEnv* env, jobject thiz,jintArray jsegmentID,jintArray psValues)
 {
     	jint*  _jsegmentID = env->GetIntArrayElements(jsegmentID, 0);
     	jint*  _psValues = env->GetIntArrayElements(psValues, 0);
@@ -91,6 +108,14 @@ JNIEXPORT void JNICALL Java_com_example_ndktest1_Segmenter_overSegmentNative(JNI
 	slic.DoSuperpixelSegmentation_ForGivenK(ubuff, 960, 540, segmentID, numlabels, m_spcount, m_compactness);
 	//Create graph structure
 	createGraphStructure(960,540,_psValues);
+	gCut = new GrabCut();
+    gCut->setSegmentNumber(numlabels);
+    gCut->setImage(ubuff);
+    gCut->setRegionNode(&regionNode);
+    gCut->setSegmentID(segmentID);
+    gCut->width = 960;
+    gCut->height = 540;
+
 	for(int i=0;i<960*540;i++)
 		_jsegmentID[i]=segmentID[i];
 	_jsegmentID[960*540]=numlabels;
@@ -99,7 +124,6 @@ JNIEXPORT void JNICALL Java_com_example_ndktest1_Segmenter_overSegmentNative(JNI
 
 }
 
-}
 
 static void createGraphStructure(int width,int height,jint* _psValues){
     static int fCnt = 0;
@@ -178,37 +202,8 @@ static void createGraphStructure(int width,int height,jint* _psValues){
         regionNode[i].meanR = regionNode[i].meanR/regionNode[i].segmentSize;
         regionNode[i].meanG = regionNode[i].meanG/regionNode[i].segmentSize;
     }
-/*
-    int r,g,b;
-    int binNum=16;
-    int binDiv = 256/binNum;
-    int binStep = binNum*binNum*binNum;
-    int *histData = new int[param.segmentNumber*binStep];
-    memset(histData,0,sizeof(int)*binStep);
-    for(int i=0;i<param.width;i++)
-        for(int j=0;j<param.height;j++)
-        {
-            c=inputImage.pixel(i,j);
-            histData[SegmentID[j*param.width+i]*binStep + ((int)(c.red()/binDiv))*binNum*binNum + ((int)(c.green()/binDiv))*binNum + ((int)(c.blue()/binDiv))]++;
-        }
-    for(int i=0;i<param.segmentNumber;i++)
-        for(int j=0;j<param.segmentNumber;j++)
-            if(i!=j)
-              if((numberOfNeighBoors[i*param.segmentNumber+j]!=0)||(numberOfNeighBoors[j*param.segmentNumber+i]!=0))
-              {
-                  for(int k=0;k<binStep;k++)
-                  {
-                      neighbDist[param.segmentNumber*i+j]+=sqrt(((float)(histData[i*binStep+k]*histData[j*param.segmentNumber+k]))/((float)(regionNode[i].segmentSize*regionNode[j].segmentSize)));
-                  }
-              }
-    for(int i=0;i<param.segmentNumber;i++)
-    {
-        for(int j=0;j<regionNode[i].neighborNum;j++)
-        {
-            regionNode[i].neighborDistance[j]=1/(neighbDist[param.segmentNumber*i+regionNode[i].neighborID[j]]+0.0001);
-        }
-    }*/
-  
+
     delete [] neighbDist;
     delete [] numberOfNeighBoors;
+}
 }
